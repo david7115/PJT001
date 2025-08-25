@@ -5,7 +5,8 @@
 # 포인트:
 #  - initInfo 응답에서 JURISOFFICECD/APPLCD 추출하여 탭3 API를 원클릭 호출
 #  - 팝업 응답의 dlt_stepA/B/C 모두 표로 출력(B 없고 C만 있는 경우도 OK)
-#  - 목록 기본 컬럼: 순번 | 접수번호 | 발전원 | 용량(kW) | 고객명 | 접속지사 | 상태 | 변전소 | 주변압기 | 배전선로
+#  - 목록 기본 컬럼: 순번 | 접수번호 | 발전원 | 용량(kW) | 고객명 | 접속지사 | 상태 | (변전소/주변압기/배전선로)
+#  - 다운로드 버튼에 고유 key 부여(중복 ID 오류 해결)
 
 import json
 import requests
@@ -133,7 +134,6 @@ def _table_from_initinfo(data: dict, seq: int = 1) -> pd.DataFrame:
         "YMD06(착공)": data.get("YMD06"),
         "YMD07(준공)": data.get("YMD07"),
     }
-    # 화면 표에는 핵심만 우선 노출
     cols = ["순번", "접수번호", "발전원", "용량(kW)", "고객명", "접속지사", "상태", "변전소", "주변압기", "배전선로"]
     df = pd.DataFrame([row])
     return df[[c for c in cols if c in df.columns]]
@@ -141,7 +141,6 @@ def _table_from_initinfo(data: dict, seq: int = 1) -> pd.DataFrame:
 
 # ----------------------------- 팝업 A/B/C → 표 -----------------------------
 def _normalize_popup_rows(rows: List[dict]) -> pd.DataFrame:
-    """공통 컬럼으로 정규화"""
     df = pd.DataFrame(rows)
     if df.empty:
         return df
@@ -157,14 +156,12 @@ def _normalize_popup_rows(rows: List[dict]) -> pd.DataFrame:
         "DLNM": "배전선로",
     }
     df = df.rename(columns=rename)
-    # 고객명 마스킹
     if "고객명" in df.columns:
         df["고객명"] = df["고객명"].map(_mask_name)
     return df
 
 
 def _table_from_popup_all_steps(res: dict) -> Dict[str, pd.DataFrame]:
-    """단계별 DataFrame 반환: {'A': dfA, 'B': dfB, 'C': dfC}"""
     out = {}
     for step_key, label in [("dlt_stepA", "A"), ("dlt_stepB", "B"), ("dlt_stepC", "C")]:
         df = _normalize_popup_rows(res.get(step_key, []))
@@ -188,12 +185,22 @@ def _table_from_popup_all_steps(res: dict) -> Dict[str, pd.DataFrame]:
 
 
 def _prefer_step(df_map: Dict[str, pd.DataFrame]) -> Tuple[str, pd.DataFrame]:
-    """표시 우선순위: B → C → A"""
     for k in ("B", "C", "A"):
         if k in df_map and not df_map[k].empty:
             return k, df_map[k]
-    # 모두 비었으면 빈 B 리턴
     return "B", pd.DataFrame()
+
+
+# ----------------------------- 다운로드 버튼 (고유 key 부여) -----------------------------
+def _download_btn(df: pd.DataFrame, filename: str, key: str):
+    csv = df.to_csv(index=False).encode("utf-8-sig")
+    st.download_button(
+        "CSV 다운로드",
+        data=csv,
+        file_name=filename,
+        mime="text/csv",
+        key=key
+    )
 
 
 # ----------------------------- 탭 구현 -----------------------------
@@ -208,7 +215,9 @@ def tab_accept_no():
                 st.warning("조회된 데이터가 없습니다.")
                 return
 
-            st.table(_table_from_initinfo(data))
+            df_info = _table_from_initinfo(data)
+            st.table(df_info)
+            _download_btn(df_info, "접수번호_조회_요약.csv", key="dl_initinfo_accept")
 
             with st.expander("원본 응답(JSON) 보기", expanded=False):
                 st.json(res)
@@ -237,7 +246,9 @@ def tab_customer_no():
                 st.warning("조회된 데이터가 없습니다.")
                 return
 
-            st.table(_table_from_initinfo(data))
+            df_info = _table_from_initinfo(data)
+            st.table(df_info)
+            _download_btn(df_info, "고객번호_조회_요약.csv", key="dl_initinfo_customer")
 
             with st.expander("원본 응답(JSON) 보기", expanded=False):
                 st.json(res)
@@ -271,7 +282,7 @@ def _render_popup_all(pop: dict):
         st.warning("표시할 데이터가 없습니다.")
     else:
         st.dataframe(pref_df, use_container_width=True)
-        _download_btn(pref_df, f"접속예정순서_단계{pref_key}.csv")
+        _download_btn(pref_df, f"접속예정순서_단계{pref_key}.csv", key=f"dl_{pref_key}_main")
 
     with st.expander("모든 단계 보기 (A/B/C)", expanded=False):
         for label in ("A", "B", "C"):
@@ -281,15 +292,10 @@ def _render_popup_all(pop: dict):
                 st.info("데이터 없음")
             else:
                 st.dataframe(df, use_container_width=True)
-                _download_btn(df, f"접속예정순서_단계{label}.csv")
+                _download_btn(df, f"접속예정순서_단계{label}.csv", key=f"dl_{label}_expander")
 
     with st.expander("원본 응답(JSON) 보기", expanded=False):
         st.json(pop)
-
-
-def _download_btn(df: pd.DataFrame, filename: str):
-    csv = df.to_csv(index=False).encode("utf-8-sig")
-    st.download_button("CSV 다운로드", data=csv, file_name=filename, mime="text/csv")
 
 
 def tab_order_popup():
