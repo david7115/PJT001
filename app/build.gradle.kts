@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.savework.nremsautologin"
+    namespace = "com.nrems.autologin"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.savework.nremsautologin"
+        applicationId = "com.nrems.autologin"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -2,9 +2,7 @@ name: Build NREMS Auto Login APK
 
 on:
   push:
-    paths:
-      - "nrems-auto-login/**"
-      - ".github/workflows/nrems-auto-login-apk.yml"
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -26,10 +24,9 @@ jobs:
 
       - name: Build debug APK
         run: gradle assembleDebug
-        working-directory: nrems-auto-login
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: nrems-auto-login-debug-apk
-          path: nrems-auto-login/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk

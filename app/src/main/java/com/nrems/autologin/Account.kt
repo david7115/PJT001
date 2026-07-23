@@ -1,4 +1,4 @@
-package com.savework.nremsautologin
+package com.nrems.autologin
 
 import org.json.JSONObject
 import java.util.UUID

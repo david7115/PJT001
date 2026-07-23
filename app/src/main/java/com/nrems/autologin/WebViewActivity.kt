@@ -1,4 +1,4 @@
-package com.savework.nremsautologin
+package com.nrems.autologin
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
