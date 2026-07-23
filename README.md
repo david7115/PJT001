@@ -1,4 +1,47 @@
-# NREMS 발전소 자동로그인 앱 (Android)
+# NREMS 발전소 자동로그인 앱
+
+두 가지 버전이 있습니다.
+
+| 버전 | 위치 | 테스트 방법 |
+|---|---|---|
+| **웹앱 (Streamlit)** | `webapp/` | 폰 브라우저에서 URL만 열면 됨 — 설치 불필요 |
+| **안드로이드 앱** | `app/` (저장소 루트가 프로젝트) | APK 설치 필요 |
+
+## 웹앱 버전 (`webapp/`) — 가장 빠른 테스트 방법
+
+서버가 대신 NREMS에 로그인해서 모니터링 페이지의 표 데이터를 추출해 보여주는
+Streamlit 앱입니다. 아이폰/안드로이드 상관없이 브라우저만 있으면 됩니다.
+
+**배포 (Streamlit Community Cloud, 무료):**
+
+1. https://share.streamlit.io 접속 → GitHub 계정으로 로그인
+2. **New app** → Repository: `david7115/PJT001`, Branch: `main`,
+   Main file path: `webapp/streamlit_app.py` → **Deploy**
+3. 생성된 `https://xxxx.streamlit.app` 주소를 폰 브라우저에서 열기
+
+**사용법:** 사이드바(모바일은 좌측 상단 » 버튼)에서 발전소 계정 추가 →
+`🔐 로그인` 버튼 → 자동 로그인 후 페이지의 표 데이터가 추출되어 표시되고
+CSV로도 내려받을 수 있습니다.
+
+**계정 영구 저장(선택):** 브라우저 세션에 입력한 계정은 새로고침하면 사라집니다.
+Streamlit Cloud 앱 설정 → **Secrets**에 아래처럼 등록하면 항상 자동으로 불러옵니다.
+
+```toml
+[[accounts]]
+name = "1호 태양광"
+id = "아이디"
+pw = "비밀번호"
+
+[[accounts]]
+name = "2호 태양광"
+id = "아이디2"
+pw = "비밀번호2"
+```
+
+> 참고: 저장소가 공개(public)이므로 계정 정보를 절대 코드나 파일로 커밋하지 마세요.
+> Secrets는 저장소가 아니라 Streamlit Cloud 서버에만 저장되어 안전합니다.
+
+## 안드로이드 앱 버전 (Android)
 
 여러 발전소의 NREMS 모바일 사이트(`http://www.nrems.co.kr/m/login.php`)에
 매번 아이디/비밀번호를 입력하는 불편을 없애기 위한 안드로이드 앱입니다.
