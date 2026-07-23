@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NREMS 자동로그인</string>
+    <string name="empty_hint">등록된 발전소 계정이 없습니다.\n아래 \"발전소 계정 추가\" 버튼을 눌러\n아이디와 비밀번호를 등록하세요.</string>
+    <string name="add_account">발전소 계정 추가</string>
+    <string name="edit_account">계정 수정</string>
+    <string name="delete_account">계정 삭제</string>
+    <string name="delete_confirm">\'%1$s\' 계정을 삭제할까요?</string>
+    <string name="save">저장</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+    <string name="edit">수정</string>
+    <string name="login">로그인</string>
+    <string name="id_label">아이디: %1$s</string>
+    <string name="hint_plant_name">발전소 이름 (예: 1호 태양광)</string>
+    <string name="hint_login_id">아이디</string>
+    <string name="hint_password">비밀번호</string>
+    <string name="hint_after_url">로그인 후 이동할 페이지 URL (선택)</string>
+    <string name="auto_login_failed">자동 로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.</string>
+</resources>
